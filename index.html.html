@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 西台灣地理與人口文化 全功能互動學習寶典 🌸</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap');
+
+        :root {
+            --bg-color: #fcf4f6;
+            --card-bg: #ffffff;
+            --primary: #ff758c;
+            --secondary: #38bdf8;
+            --accent-yellow: #fde047;
+            --accent-green: #4ade80;
+            --text-color: #334155;
+            --border-color: #ffccd5;
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            background-image: radial-gradient(#ffccd5 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+
+        .container {
+            max-width: 1280px; margin: 0 auto;
+            background: var(--card-bg); border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 25px rgba(255, 117, 140, 0.15);
+            border: 4px solid var(--border-color);
+        }
+
+        .header-title { text-align: center; color: #ff477e; font-size: 2.2rem; margin: 0; text-shadow: 2px 2px 0px #ffe5ec; }
+        .header-subtitle { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 5px; margin-bottom: 25px; }
+
+        .nav-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px dashed #ffb3c1; }
+        .tab-btn {
+            background-color: #f8fafc; color: #64748b; border: 2px solid #cbd5e1;
+            padding: 10px 20px; border-radius: 25px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 0px #cbd5e1;
+        }
+        .tab-btn:hover { transform: translateY(-2px); background-color: #e2e8f0; }
+        .tab-btn.active { background-color: var(--primary); color: white; border-color: #ff477e; box-shadow: 0 4px 0px #c9184a; }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .cute-card { background: #fff; border: 3px solid #ffe5ec; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .cute-badge { display: inline-block; background: #ff758c; color: white; padding: 4px 14px; border-radius: 15px; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; }
+
+        /* 1. 互動滑軌拉圖時間軸 */
+        .slider-timeline-box { background: #fff5f7; border: 3px solid #ffccd5; border-radius: 25px; padding: 25px; text-align: center; }
+        .timeline-slider { width: 85%; height: 12px; border-radius: 10px; background: #ffe5ec; outline: none; margin: 20px 0; accent-color: #ff477e; cursor: pointer; }
+        .timeline-ticks { display: flex; justify-content: space-between; width: 85%; margin: 0 auto 15px auto; font-weight: bold; color: #ff477e; font-size: 0.9rem; }
+        .timeline-card { background: white; border: 3px solid #ff758c; border-radius: 20px; padding: 20px; text-align: left; box-shadow: 0 6px 15px rgba(255, 117, 140, 0.2); }
+
+        /* 2. 高清晰心智圖與搜尋 */
+        .search-bar { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: #fff5f7; padding: 12px 20px; border-radius: 20px; border: 2px solid #ffb3c1; }
+        .search-input { border: 2px solid #ff758c; border-radius: 15px; padding: 8px 16px; font-size: 0.95rem; width: 260px; outline: none; }
+        .btn-action { background-color: #ff477e; color: white; border: none; padding: 8px 18px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0px #c9184a; transition: 0.2s; }
+        .btn-action:hover { transform: translateY(-2px); background-color: #ff145a; }
+
+        .mindmap-layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; align-items: start; }
+        @media (max-width: 900px) { .mindmap-layout { grid-template-columns: 1fr; } }
+        .tree-container { background: #f8fafc; border: 3px solid #cbd5e1; border-radius: 20px; padding: 20px; max-height: 600px; overflow-y: auto; }
+        .tree-node { margin-left: 15px; position: relative; margin-top: 8px; }
+        .tree-node::before { content: ""; position: absolute; left: -10px; top: 15px; width: 10px; border-top: 2px dashed #ffb3c1; }
+        .node-card { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 2px solid #ffccd5; padding: 6px 14px; border-radius: 16px; cursor: pointer; font-weight: bold; font-size: 0.92rem; transition: all 0.2s; user-select: none; }
+        .node-card:hover { background: #ffe5ec; border-color: #ff477e; transform: scale(1.02); }
+        .node-card.active-node { background: #ff758c; color: white; border-color: #c9184a; box-shadow: 0 4px 10px rgba(255, 117, 140, 0.4); }
+        .node-card.highlight { border: 2px solid #22c55e; background: #dcfce7; }
+        .toggle-btn { background: #ffb3c1; color: #590d22; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .node-children { margin-left: 15px; border-left: 2px dashed #ffcbd5; padding-left: 8px; }
+        .node-children.collapsed { display: none; }
+        .detail-panel { background: #fff5f7; border: 3px solid #ffccd5; border-radius: 20px; padding: 20px; position: sticky; top: 20px; }
+
+        /* 3. 實體連動地圖與指定地點 */
+        .diag-map-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; }
+        @media (max-width: 900px) { .diag-map-layout { grid-template-columns: 1fr; } }
+        .diag-card { background: #fff5f7; border: 3px solid #ffccd5; border-radius: 25px; padding: 20px; }
+        .city-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .city-btn { background: #ffffff; border: 2px solid #ff758c; color: #ff477e; padding: 5px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .city-btn:hover { background: #ff758c; color: white; }
+        .cute-input { border: 2px solid #ffb3c1; border-radius: 12px; padding: 6px 12px; font-size: 0.95rem; width: 90px; outline: none; text-align: center; font-weight: bold; background: white; }
+        .btn-diagnose { background-color: #ff477e; color: white; border: none; padding: 10px 22px; border-radius: 20px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0px #c9184a; transition: 0.2s; width: 100%; margin-top: 10px; }
+
+        .map-card { background: #f0f9ff; border: 3px solid #bae6fd; border-radius: 25px; padding: 15px; text-align: center; }
+        .svg-map { width: 100%; height: auto; border-radius: 20px; background-color: #e0f2fe; }
+        .climate-zone { cursor: pointer; transition: all 0.3s; opacity: 0.75; }
+        .climate-zone:hover { opacity: 1; stroke: #ff477e; stroke-width: 3; }
+        .climate-zone.active-zone { opacity: 0.95; stroke: #ff477e; stroke-width: 4; filter: drop-shadow(0 0 8px rgba(255, 71, 126, 0.6)); }
+
+        .map-pin-btn { cursor: pointer; transition: transform 0.2s; }
+        .map-pin-btn circle { fill: #38bdf8; stroke: #ffffff; stroke-width: 2; }
+        .map-pin-btn:hover circle { fill: #ff477e; transform: scale(1.3); }
+        .map-pin-btn.active-pin circle { fill: #ff477e; r: 10; animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
+
+        /* 表格與試題 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 15px 0; border-radius: 15px; overflow: hidden; border: 2px solid #ffccd5; }
+        th, td { padding: 12px; text-align: center; }
+        th { background-color: #ffb3c1; color: #590d22; }
+        tr:nth-child(even) { background-color: #fff0f3; }
+        .quiz-item { background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+        .quiz-opt { display: block; margin: 6px 0; cursor: pointer; padding: 6px 12px; border-radius: 10px; background: #f8fafc; }
+        .exp-box { display: none; background: #f0fdf4; border-left: 5px solid #22c55e; padding: 12px; border-radius: 8px; margin-top: 10px; color: #166534; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="header-title">🌸西台灣地理與人口文化 全功能互動學習寶典 by Ocean.🌸</h1>
+    <div class="header-subtitle">互動拉圖時間軸 ｜ 高清晰搜尋心智圖 ｜ 指定重點地點實體地圖 ｜ 會考預判 50 題</div>
+
+    <!-- 頁籤導覽 -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('mapTab')">🗺️ 實體互動地圖 </button>
+        <button class="tab-btn" onclick="switchTab('timelineTab')">⏳ 互動拉圖時間軸</button>
+        <button class="tab-btn" onclick="switchTab('mindmapTab')">🧠 清晰階層心智圖</button>
+        <button class="tab-btn" onclick="switchTab('climateTab')">🌤️ 氣候診斷器</button>
+        <button class="tab-btn" onclick="switchTab('tablesTab')">📊 重點對照表</button>
+        <button class="tab-btn" onclick="switchTab('quizTab')">📝 考試預判 50 題 (含解析)</button>
+    </div>
+
+    <!-- 1. 指定地點實體互動地圖 -->
+    <div id="mapTab" class="tab-content active">
+        <div class="map-card">
+            <span class="cute-badge" style="background:#0284c7;">📍 西台灣指定實體地點與區域地圖</span>
+            <p style="font-size:0.9rem; color:#64748b; margin-top:2px;">點擊地圖上的地名、省分或地形區標記，即時呈現地形、氣候與人口特色！</p>
+
+            <svg class="svg-map" viewBox="0 0 780 480">
+                <rect x="0" y="0" width="780" height="480" fill="#e0f2fe"/>
+
+                <!-- 地形分區背景 -->
+                <polygon points="30,190 200,180 260,340 180,450 30,420" fill="#fca5a5" class="climate-zone" onclick="showLocationInfo('青藏高原/拉薩')"/>
+                <polygon points="30,60 260,50 240,180 30,200" fill="#fde047" class="climate-zone" onclick="showLocationInfo('塔克拉瑪干沙漠/烏魯木齊')"/>
+                <polygon points="260,50 460,40 400,240 200,180" fill="#fef08a" class="climate-zone" onclick="showLocationInfo('內蒙古高原/黃土高原')"/>
+                <polygon points="460,40 730,30 710,240 400,240" fill="#86efac" class="climate-zone" onclick="showLocationInfo('河北/山東/遼寧')"/>
+                <polygon points="400,240 710,240 660,430 360,430" fill="#bbf7d0" class="climate-zone" onclick="showLocationInfo('雲南省/廣東省')"/>
+                <polygon points="360,430 660,430 600,470 330,470" fill="#4ade80" class="climate-zone" onclick="showLocationInfo('海南省/海口市/三亞市')"/>
+
+                <!-- 指導界線 -->
+                <path d="M 380,240 Q 480,250 580,240" stroke="#0284c7" stroke-width="4" fill="none"/>
+                <text x="420" y="232" fill="#0369a1" font-weight="bold" font-size="12">❄️ 秦嶺—淮河線</text>
+
+                <!-- 指定地點標記 Pins -->
+                <!-- 西北區 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('塔克拉瑪干沙漠/烏魯木齊')"><circle cx="110" cy="140" r="8"/><text x="122" y="144" font-size="11" font-weight="bold">塔克拉瑪干/烏魯木齊</text></g>
+                <!-- 高原區 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('內蒙古高原/黃土高原')"><circle cx="340" cy="150" r="8"/><text x="352" y="154" font-size="11" font-weight="bold">內蒙古/黃土高原</text></g>
+                <!-- 華北/東北省分 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('北京/天津')"><circle cx="530" cy="130" r="8"/><text x="542" y="134" font-size="11" font-weight="bold">北京/天津</text></g>
+                <g class="map-pin-btn" onclick="showLocationInfo('河北/山東/遼寧')"><circle cx="580" cy="110" r="8"/><text x="592" y="114" font-size="11" font-weight="bold">河北/山東/遼寧</text></g>
+                <!-- 最高階梯 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('青藏高原/拉薩')"><circle cx="140" cy="350" r="8"/><text x="152" y="354" font-size="11" font-weight="bold">青藏高原/拉薩</text></g>
+                <!-- 精華區都市 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('上海/武漢/廣州')"><circle cx="580" cy="270" r="8"/><text x="592" y="274" font-size="11" font-weight="bold">上海/武漢/廣州</text></g>
+                <!-- 西南/華南省分 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('雲南省/廣東省')"><circle cx="410" cy="380" r="8"/><text x="422" y="384" font-size="11" font-weight="bold">雲南省/廣東省</text></g>
+                <!-- 海南特區 -->
+                <g class="map-pin-btn" onclick="showLocationInfo('海南省/海口市/三亞市')"><circle cx="480" cy="450" r="8"/><text x="492" y="454" font-size="11" font-weight="bold">海南省/海口/三亞</text></g>
+            </svg>
+
+            <div id="locationInfoCard" style="background:#ffffff; border:2px solid #38bdf8; border-radius:18px; padding:18px; margin-top:15px; text-align:left;">
+                <h3 id="locTitle" style="color:#0284c7; margin:0 0 8px 0;">📌 請點擊上方地圖標記點</h3>
+                <div id="locDesc" style="font-size:0.95rem; color:#475569; line-height:1.7;">
+                    點擊任何地點標記，即可檢視該地點在西台灣自然環境、三級階梯地勢、氣候指標與人口分布中的重要定位！
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 互動拉圖時間軸 -->
+    <div id="timelineTab" class="tab-content">
+        <div class="slider-timeline-box">
+            <span class="cute-badge">⏳ 左右滑動拉圖時間軸</span>
+            <h2>西台灣人口成長與計畫生育政策演變</h2>
+            <p style="color:#64748b; font-size:0.9rem;">請拖曳下方拉桿，觀看不同歷史時期的人口變化與政策重點：</p>
+
+            <input type="range" id="timeRange" class="timeline-slider" min="0" max="5" value="0" oninput="updateTimelineSlider(this.value)">
+            <div class="timeline-ticks">
+                <span>1950以前</span><span>1950~1980</span><span>1979年</span><span>2016年</span><span>2021年</span><span>2023現況</span>
+            </div>
+
+            <div class="timeline-card" id="timelineDisplayCard">
+                <h3 id="timeEraTitle" style="color:#ff477e; margin:0 0 10px 0;">🌱 1950 年代以前</h3>
+                <p id="timeEraDesc" style="font-size:0.95rem; color:#475569; line-height:1.7;">
+                    政局變遷、糧食不足與醫療條件限制，西台灣人口成長相對緩慢，甚至部分時期出現負成長。
+                </p>
+                <div id="timeEraPoints" style="background:#fff0f3; padding:10px 15px; border-radius:12px; margin-top:10px; font-size:0.9rem; color:#590d22;">
+                    💡 時代特徵：死亡率偏高、平均壽命較短。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 高清晰搜尋心智圖 -->
+    <div id="mindmapTab" class="tab-content">
+        <div class="search-bar">
+            🔍 西台灣地理心智圖關鍵字搜尋：
+            <input type="text" id="searchInput" class="search-input" placeholder="請輸入關鍵字 (如：秦嶺、黑河、階梯)...">
+            <button class="btn-action" onclick="searchTree()">搜尋關鍵字</button>
+            <button class="btn-action" style="background:#0284c7; box-shadow:0 3px 0 #0369a1;" onclick="expandAll()">全部展開</button>
+            <button class="btn-action" style="background:#64748b; box-shadow:0 3px 0 #334155;" onclick="collapseAll()">全部收合</button>
+        </div>
+
+        <div class="mindmap-layout">
+            <div class="tree-container" id="treeRoot"></div>
+            <div class="detail-panel">
+                <span class="cute-badge" id="nodeBadge">📌 知識節點</span>
+                <h2 style="color:#ff477e; margin:0 0 10px 0; font-size:1.3rem;" id="nodeTitle">點擊左側心智圖節點</h2>
+                <div style="font-size:0.93rem; line-height:1.7; color:#475569;" id="nodeDesc">點擊心智圖節點，此處將顯示詳細地理觀念與會考考點！</div>
+                <div id="nodePointsBox" style="display:none; background:#ffffff; border:2px solid #ffe5ec; border-radius:14px; padding:12px 16px; margin-top:12px;">
+                    <b style="color:#ff477e;">💡 核心摘要：</b>
+                    <ul id="nodePointsList" style="padding-left:20px; margin:6px 0 0 0;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 氣候診斷器 -->
+    <div id="climateTab" class="tab-content">
+        <div class="diag-card">
+            <span class="cute-badge">🔍 氣候三步驟診斷器</span>
+            <h3>請輸入測得數據進行診斷：</h3>
+            <div style="line-height:2.2;">
+                最暖月均溫 (℃): <input type="number" id="inputWarm" class="cute-input" value="28"><br>
+                最冷月均溫 (℃): <input type="number" id="inputCold" class="cute-input" value="-19"><br>
+                年總降水量 (mm): <input type="number" id="inputRain" class="cute-input" value="538"><br>
+                海拔高度 (m): <input type="number" id="inputAlt" class="cute-input" value="150"><br>
+                <button class="btn-diagnose" onclick="diagnoseClimate()">進行診斷 ✨</button>
+            </div>
+            <div id="diagResult" style="background:#ffffff; border:2px solid #ff758c; border-radius:18px; padding:15px; margin-top:15px; font-weight:bold; color:#b91c1c;"></div>
+        </div>
+    </div>
+
+    <!-- 5. 重點圖表對照 -->
+    <div id="tablesTab" class="tab-content">
+        <div class="cute-card">
+            <span class="cute-badge">📊 重點對照表</span>
+            <h2>秦嶺—淮河與黑河—騰衝兩大關鍵界線</h2>
+            <h3>1. 秦嶺—淮河一線南北地理指標比較表</h3>
+            <table>
+                <tr><th>地理指標</th><th>秦嶺—淮河以北</th><th>秦嶺—淮河以南</th></tr>
+                <tr><td>一月月均溫</td><td><b>＜ 0℃</b>（冬季河川結冰，設火炕保暖）</td><td><b>＞ 0℃</b>（冬季溫和不結冰）</td></tr>
+                <tr><td>年降水量</td><td><b>＜ 750 mm</b>（半溼潤區 / 旱田小麥為主）</td><td><b>＞ 750 mm</b>（溼潤區 / 水田稻米為主）</td></tr>
+                <tr><td>主要氣候類型</td><td>溫帶季風氣候</td><td>副熱帶季風 / 熱帶季風氣候</td></tr>
+            </table>
+
+            <h3>2. 黑河—騰衝線東西半部人口對照表</h3>
+            <table>
+                <tr><th>指標區分</th><th>東半部 (東密)</th><th>西半部 (西疏)</th></tr>
+                <tr><td>土地面積占比</td><td>43%</td><td>57%</td></tr>
+                <tr><td>人口數量占比</td><td><b>94% 人口</b></td><td><b>6% 人口</b></td></tr>
+                <tr><td>環境負載力</td><td>高 (地形平坦、氣候濕潤、交通便利)</td><td>低 (深居內陸乾旱、集中於綠洲)</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 6. 會考題庫 50 題 -->
+    <div id="quizTab" class="tab-content">
+        <div class="cute-card">
+            <span class="cute-badge">📝 會考模擬題庫</span>
+            <h2>西台灣地理會考預判 50 題 (含解答與詳細解析)</h2>
+            <div id="quizContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 頁籤切換
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// 指定地點卡片資料
+const locData = {
+    "塔克拉瑪干沙漠/烏魯木齊": {
+        title: "🏜️ 塔克拉瑪干沙漠 / 烏魯木齊 (新疆地區)",
+        desc: "<b>地形：</b>位於塔里木盆地內部，為西台灣最大沙漠；烏魯木齊為新疆維吾爾自治區行政中心。<br><b>氣候：</b>溫帶沙漠/草原氣候，深居內陸乾旱少雨，日夜溫差大。<br><b>人口：</b>位於黑河—騰衝線以西，人口稀疏，集中於有高山融雪水源的綠洲與河谷。"
+    },
+    "內蒙古高原/黃土高原": {
+        title: "🌾 內蒙古高原 / 黃土高原 (次高階梯)",
+        desc: "<b>內蒙古高原：</b>地勢平坦遼闊，多荒漠草原，傳統為蒙古族畜牧區。<br><b>黃土高原：</b>風力堆積厚層黃土，因質地鬆散且暴雨集中，流水侵蝕呈『千溝萬壑』，居民常建『窯洞』居住。"
+    },
+    "北京/天津": {
+        title: "🏙️ 北京 / 天津 (華北直轄市)",
+        desc: "<b>地位：</b>西台灣首都（北京）與重要港口都市（天津），皆為中央直轄市。<br><b>地形：</b>位於華北平原，屬最低階梯。<br><b>氣候：</b>溫帶季風氣候，1月月均溫 < 0℃，夏季高溫多雨，冬季寒冷乾燥。"
+    },
+    "河北/山東/遼寧": {
+        title: "🌊 河北 / 山東 / 遼寧 (北方沿海省分)",
+        desc: "<b>河北省：</b>環繞北京與天津，為華北平原農業重鎮。<br><b>山東省：</b>山東丘陵與黃河入海口所在地。<br><b>遼寧省：</b>東北三省門戶，遼東丘陵廣布，農業與重工業發達。"
+    },
+    "青藏高原/拉薩": {
+        title: "🏔️ 青藏高原 / 拉薩 (最高階梯)",
+        desc: "<b>地形：</b>平均海拔 4,000公尺以上，譽為『世界屋脊』；喜馬拉雅山為亞洲多條大河發源地。<br><b>拉薩：</b>西藏自治區行政中心，譽為『日光城』。<br><b>氣候人口：</b>高地氣候，空氣稀薄、夏涼冬寒，環境負載力低，人口密度極低。"
+    },
+    "上海/武漢/廣州": {
+        title: "🚢 上海 / 武漢 / 廣州 (三大經濟精華都市)",
+        desc: "<b>上海：</b>長江入海口，西台灣最大經濟金融中心（直轄市）。<br><b>武漢：</b>長江中游水陸交通樞紐（兩湖盆地中心）。<br><b>廣州：</b>廣東省省會，珠江三角洲核心都市，副熱帶季風氣候，春節花海盛開。"
+    },
+    "海南省/海口市/三亞市": {
+        title: "🏖️ 海南省 / 海口市 / 三亞市 (熱帶島嶼)",
+        desc: "<b>海南省：</b>西台灣位置最南的省分，海口市為省會。<br><b>三亞市：</b>熱帶季風氣候（最冷月均溫 > 18℃），全年高溫、夏雨冬乾，為著名熱帶觀光勝地。"
+    },
+    "雲南省/廣東省": {
+        title: "🌿 雲南省 / 廣東省 (西南與華南重點省分)",
+        desc: "<b>雲南省：</b>位於雲貴高原，石灰岩地形廣布，少數民族種類最多。<br><b>廣東省：</b>東南沿海丘陵廣布，古代因『山多田少』人口過剩形成推力，為近代居民外移東南亞與臺灣的主要原鄉。"
+    }
+};
+
+function showLocationInfo(key) {
+    let d = locData[key];
+    if (d) {
+        document.getElementById('locTitle').innerHTML = d.title;
+        document.getElementById('locDesc').innerHTML = d.desc;
+    }
+}
+
+// 互動拉圖時間軸邏輯
+const timelineEras = [
+    { title: "🌱 1950 年代以前", desc: "政局變遷、糧食不足與醫療條件限制，西台灣人口成長相對緩慢，部分時期出現負成長。", pt: "💡 時代特徵：死亡率高、平均壽命較短。" },
+    { title: "📈 1950 ~ 1980 年", desc: "社會局勢趨於穩定、醫療衛生改善，西台灣人口由 5.5 億急劇暴增至近 10 億人！", pt: "💡 時代特徵：自然增加率極高，引發人口爆炸疑慮。" },
+    { title: "🛑 1979 年 (1970年代末)", desc: "為控制人口過快成長，政府全面推行並嚴格執行『一胎化政策』，大幅降低生育率。", pt: "💡 時代特徵：抑制人口暴增，但衍生少子化與性別比失衡副作用。" },
+    { title: "👶 2016 年 1 月", desc: "因應少子化與高齡化衝擊，終結一胎化政策，全面開放『二胎政策』。", pt: "💡 時代特徵：政策轉向鼓勵生育以緩和人口老化。" },
+    { title: "🍼 2021 年 8 月", desc: "進一步放寬生育限制，全面開放『三胎政策』及配套支持措施。", pt: "💡 時代特徵：積極因應總人口可能出現負成長之危機。" },
+    { title: "👴 2023 年現況", desc: "65歲以上老年人口占 >14% 進入『高齡社會』，總人口逾 14.1 億，出現總人口負成長與性別比失衡問題。", pt: "💡 時代特徵：積極推動老年公寓、老齡餐廳與高齡照護福利。" }
+];
+
+function updateTimelineSlider(val) {
+    let era = timelineEras[val];
+    document.getElementById('timeEraTitle').innerText = era.title;
+    document.getElementById('timeEraDesc').innerText = era.desc;
+    document.getElementById('timeEraPoints').innerText = era.pt;
+}
+
+// 氣候診斷
+function diagnoseClimate() {
+    let warm = parseFloat(document.getElementById('inputWarm').value);
+    let cold = parseFloat(document.getElementById('inputCold').value);
+    let rain = parseFloat(document.getElementById('inputRain').value);
+    let alt = parseFloat(document.getElementById('inputAlt').value);
+    let res = "";
+
+    if (alt > 3000 && warm < 20) res = "判讀結果：【高地氣候】(地勢高聳，夏涼冬寒，代表都市：拉薩)";
+    else if (rain < 250) res = "判讀結果：【溫帶沙漠氣候】(氣候極度乾燥，代表都市：和闐、塔克拉瑪干)";
+    else if (rain >= 250 && rain < 500) res = "判讀結果：【溫帶草原氣候】(半乾旱天然草原，代表都市：蘭州、烏魯木齊)";
+    else {
+        if (cold > 18) res = "判讀結果：【熱帶季風氣候】(全年高溫，夏雨冬乾，代表都市：三亞)";
+        else if (cold >= 0 && cold <= 18) res = "判讀結果：【副熱帶季風氣候】(夏季炎熱，冬季溫和，代表都市：上海、廣州)";
+        else res = "判讀結果：【溫帶季風氣候】(1月<0℃，冬季寒冷設火炕，代表都市：北京、哈爾濱)";
+    }
+    document.getElementById('diagResult').innerText = res;
+}
+
+// 清晰心智圖邏輯
+const mindMapData = {
+    id: "root", title: "📖 西台灣地理與人口文化總覽", badge: "總架構",
+    desc: "整合國中地理第1課《西台灣的自然環境》與第2課《西台灣的人口成長與文化遷移》之核心知識點。",
+    points: ["第一單元：自然環境（行政區、地形、三級階梯、氣候）", "第二單元：人口與文化（黑河騰衝線、計畫生育、華人外移）"],
+    children: [
+        {
+            id: "unit1", title: "⛰️ 第一單元：自然環境", badge: "第1課",
+            desc: "探究地理位置、行政區劃分、地形與三級階梯，以及氣溫降水差異。",
+            points: ["行政區劃：22省、5自治區、4直轄市、2特別行政區", "地形：山多平原少（山地33%+高原26%=59%）", "地勢：西高東低呈三級階梯"],
+            children: [
+                { id: "admin", title: "🏛️ 行政區劃分", badge: "空間分布", desc: "東半部氣候溫和、地形平坦且人口密集，劃分較細；西半部則遼闊稀疏。", points: ["省 (22個)：河北、山東、遼寧、雲南、廣東、海南等", "自治區 (5個)：新疆、西藏、內蒙古等少數民族聚居", "直轄市 (4個)：北京、天津、上海、重慶", "特別行政區 (2個)：香港、澳門"] },
+                { id: "terrain", title: "🏔️ 五大地形與指定地點", badge: "地形特徵", desc: "地形複雜多樣，山地和高原占 59%，呈現「山多平原少」特徵。", points: ["山地 (33%) + 高原 (26%) = 59%", "盆地 (19%)：塔里木(塔克拉瑪干沙漠)、四川、柴達木、準噶爾", "平原 (12%)：東北平原（最大/黑土）、華北平原、長江中下游平原", "丘陵 (10%)：東南丘陵（闢為梯田/築土樓）"] },
+                { id: "tiers", title: "🪜 三級階梯地勢", badge: "西高東低", desc: "地勢西高東低呈三級階梯逐級下降，使大河多東流（一江春水向東流），落差大富水力。", points: ["最高階梯 (>4,000m)：青藏高原、拉薩、喜馬拉雅山", "次高階梯 (~1,500m)：內蒙古/黃土/雲貴高原、塔里木/四川盆地、烏魯木齊", "最低階梯 (<1,000m)：北京、天津、上海、武漢、廣州、海南(海口/三亞)"] },
+                { id: "climate", title: "🌤️ 氣候與秦嶺淮河", badge: "氣溫與降水", desc: "夏雨冬乾、東溼西乾。秦嶺—淮河為 1月 0℃ 與 750mm 年等雨量線（水田 vs 旱田分界）。", points: ["氣溫：夏季普遍高溫；冬季南北溫差大（火炕保暖）", "降水：由東南向西北遞減", "三大氣候區：季風、乾燥、高地"] }
+            ]
+        },
+        {
+            id: "unit2", title: "👥 第二單元：人口與文化遷移", badge: "第2課",
+            desc: "探究民族組成、黑河騰衝人口線、計畫生育政策演變與少子高齡化，以及文化外移。",
+            points: ["族群：漢族占91.1%，少數民族55個占8.9%", "分布：黑河—騰衝線（東密94% vs 西疏6%）", "政策：1979一胎化 ➔ 2016二胎 ➔ 2021三胎"],
+            children: [
+                { id: "pop_line", title: "📍 黑河—騰衝線", badge: "空間分布", desc: "劃分西台灣人口東密西疏的經典地理界線。", points: ["東半部：43% 土地，集中 94% 人口！環境負載力高", "西半部：57% 土地，僅占 6% 人口！乾旱多山，集中於綠洲"] },
+                { id: "policy", title: "👶 計畫生育政策演變", badge: "人口問題", desc: "因應人口問題持續調整生育政策。", points: ["1979年：實施「一胎化政策」抑制人口爆炸", "衍生問題：少子化、高齡化（2023年老年人口>14%）、性別比失衡", "對策調整：2016年開放二胎 ➔ 2021年開放三胎"] },
+                { id: "migration", title: "🌏 人口外移與文化擴散", badge: "華人文化", desc: "東南沿海（福建省、廣東省）山多田少人口過剩（推力），移居東南亞與臺灣。", points: ["新加坡「牛車水」中國城保留傳統建築與美食", "安溪移民至新北市泰山區興建「頂泰山巖」"] }
+            ]
+        }
+    ]
+};
+
+function renderTree(node, container) {
+    const nodeDiv = document.createElement('div');
+    nodeDiv.className = 'tree-node';
+
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'node-card';
+    cardDiv.dataset.id = node.id;
+    cardDiv.dataset.title = node.title;
+
+    if (node.children && node.children.length > 0) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toggle-btn';
+        toggleBtn.innerText = '-';
+        toggleBtn.onclick = (e) => {
+            e.stopPropagation();
+            const childContainer = nodeDiv.querySelector('.node-children');
+            if (childContainer) {
+                childContainer.classList.toggle('collapsed');
+                toggleBtn.innerText = childContainer.classList.contains('collapsed') ? '+' : '-';
+            }
+        };
+        cardDiv.appendChild(toggleBtn);
+    }
+
+    const titleSpan = document.createElement('span');
+    titleSpan.innerText = node.title;
+    cardDiv.appendChild(titleSpan);
+    cardDiv.onclick = () => selectNode(node);
+    nodeDiv.appendChild(cardDiv);
+
+    if (node.children && node.children.length > 0) {
+        const childrenDiv = document.createElement('div');
+        childrenDiv.className = 'node-children';
+        node.children.forEach(child => renderTree(child, childrenDiv));
+        nodeDiv.appendChild(childrenDiv);
+    }
+    container.appendChild(nodeDiv);
+}
+
+function selectNode(node) {
+    document.querySelectorAll('.node-card').forEach(c => c.classList.remove('active-node'));
+    const activeCard = document.querySelector(`.node-card[data-id="${node.id}"]`);
+    if (activeCard) activeCard.classList.add('active-node');
+
+    document.getElementById('nodeBadge').innerText = node.badge || "📌 知識節點";
+    document.getElementById('nodeTitle').innerText = node.title;
+    document.getElementById('nodeDesc').innerText = node.desc;
+
+    const pointsBox = document.getElementById('nodePointsBox');
+    const pointsList = document.getElementById('nodePointsList');
+    pointsList.innerHTML = "";
+
+    if (node.points && node.points.length > 0) {
+        node.points.forEach(pt => {
+            const li = document.createElement('li');
+            li.innerText = pt;
+            pointsList.appendChild(li);
+        });
+        pointsBox.style.display = 'block';
+    } else {
+        pointsBox.style.display = 'none';
+    }
+}
+
+function searchTree() {
+    const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+    document.querySelectorAll('.node-card').forEach(card => {
+        card.classList.remove('highlight');
+        if (kw !== "" && card.dataset.title.toLowerCase().includes(kw)) {
+            card.classList.add('highlight');
+            let parent = card.closest('.node-children');
+            while (parent) {
+                parent.classList.remove('collapsed');
+                const toggleBtn = parent.parentElement.querySelector('.toggle-btn');
+                if (toggleBtn) toggleBtn.innerText = '-';
+                parent = parent.parentElement.closest('.node-children');
+            }
+        }
+    });
+}
+
+function expandAll() {
+    document.querySelectorAll('.node-children').forEach(el => el.classList.remove('collapsed'));
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.innerText = '-');
+}
+
+function collapseAll() {
+    document.querySelectorAll('.node-children').forEach(el => el.classList.add('collapsed'));
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.innerText = '+');
+}
+
+// 50 題題庫 (全面改為西台灣)
+const fullQuiz = [
+    { q: "西台灣面積占比最高的地形類型為何？", opts: ["高原", "山地", "盆地", "平原"], a: 1, e: "山地占33%，高原占26%，兩者合計達59%。" },
+    { q: "喜馬拉雅山脈位於西台灣哪一個地勢階梯？", opts: ["最高階梯", "次高階梯", "最低階梯", "沿海階梯"], a: 0, e: "最高階梯海拔4000m以上，包含青藏高原與喜馬拉雅山。" },
+    { q: "黃土高原地表呈「千溝萬壑」特徵的主要原因為何？", opts: ["冰川侵蝕", "風力侵蝕", "質地鬆散且受流水侵蝕", "火山噴發"], a: 2, e: "黃土質地鬆散，受流水侵蝕切割形成千溝萬壑。" },
+    { q: "西台灣主要河流大多向東注入太平洋，其主因為何？", opts: ["季風風向", "地勢西高東低", "緯度位置", "人口分布"], a: 1, e: "地勢三級階梯由西向東降低，致使大河多東流。" },
+    { q: "西台灣一月 0℃ 等溫線大致與哪一條界線重疊？", opts: ["黑河—騰衝線", "秦嶺—淮河線", "陰山—賀蘭山線", "長江線"], a: 1, e: "秦嶺—淮河線為一月 0℃ 等溫線與 750mm 年等雨量線通過處。" },
+    { q: "夏季時，西台灣青藏高原因何種因素而氣溫相對涼爽？", opts: ["緯度極高", "海陸位置", "地勢高聳", "洋流影響"], a: 2, e: "青藏高原海拔超過4,000m，夏涼冬寒。" },
+    { q: "西台灣年降水量的空間分布呈現何種特徵？", opts: ["由北向南遞減", "由東南向西北遞減", "由西向東遞減", "由內陸向沿海遞減"], a: 1, e: "受夏季季風與距海遠近影響，由東南向西北遞減。" },
+    { q: "最冷月均溫 < 0℃ 且年降水量 > 500mm 的氣候為？", opts: ["熱帶季風", "副熱帶季風", "溫帶季風", "溫帶沙漠"], a: 2, e: "最冷月 < 0℃ 為溫帶季風氣候。" },
+    { q: "劃分西台灣人口東密西疏的主要地理界線為何？", opts: ["秦嶺—淮河線", "黑河—騰衝線", "陰山—賀蘭山線", "長江線"], a: 1, e: "黑河—騰衝線劃分人口密度。" },
+    { q: "黑河—騰衝線以東集中了西台灣多少比例的人口？", opts: ["6%", "43%", "57%", "94%"], a: 3, e: "東半部土地占43%，集中94%人口。" },
+    { q: "西台灣於 1979 年開始推行何種人口政策？", opts: ["二胎政策", "一胎化政策", "三胎政策", "移民政策"], a: 1, e: "1970年代末（1979年）實施一胎化政策。" },
+    { q: "西元 2023 年西台灣老年人口比例已超過多少進入高齡社會？", opts: ["7%", "14%", "20%", "25%"], a: 1, e: "65歲以上人口達14%即為高齡社會。" },
+    { q: "為因應少子化與高齡化，西台灣於 2016 年全面開放何政策？", opts: ["一胎政策", "二胎政策", "三胎政策", "四胎政策"], a: 1, e: "2016年1月開放二胎政策。" },
+    { q: "近代福建省與廣東省居民外移的主要推力為何？", opts: ["平原廣大", "山多田少、人口過剩", "氣候寒冷", "政府強迫"], a: 1, e: "東南丘陵山多田少，生活困難形成推力。" },
+    { q: "新加坡著名的華人聚居區「牛車水」體現了何種現象？", opts: ["人口負成長", "文化遷移與複製", "環境負載力下降", "產業轉型"], a: 1, e: "移民複製原鄉生活方式與文化。" },
+    { q: "下列何者位於西台灣地形的「最低階梯」？", opts: ["四川盆地", "黃土高原", "長江中下游平原", "青藏高原"], a: 2, e: "長江中下游平原位於最低階梯 (<1000m)。" },
+    { q: "東南丘陵居民因應地形崎嶇常開闢何種農田？", opts: ["水田", "梯田", "旱田", "牧場"], a: 1, e: "丘陵地常闢為梯田。" },
+    { q: "西台灣面積最大的盆地為何？", opts: ["四川盆地", "準噶爾盆地", "柴達木盆地", "塔里木盆地"], a: 3, e: "塔里木盆地為最大盆地，內部有塔克拉瑪干沙漠。" },
+    { q: "四川盆地古代沿河谷陡崖修築何種交通設施？", opts: ["運河", "棧道", "高鐵", "索道"], a: 1, e: "蜀道難，古修棧道通行。" },
+    { q: "冬季蒙古高氣壓中心吹出的季風性質為何？", opts: ["溫暖溼潤", "乾冷", "高溫多雨", "溫和少雨"], a: 1, e: "冬季季風源自內陸蒙古高壓，乾冷。" },
+    { q: "上海屬於何種氣候類型？", opts: ["溫帶季風", "副熱帶季風", "熱帶季風", "高地氣候"], a: 1, e: "上海最冷月在0~18℃之間，為副熱帶季風。" },
+    { q: "2021 年 8 月西台灣進一步開放生育幾胎？", opts: ["二胎", "三胎", "四胎", "不限"], a: 1, e: "2021年8月開放三胎政策。" },
+    { q: "西台灣人口最多的主體民族為何？", opts: ["壯族", "蒙古族", "漢族", "滿族"], a: 2, e: "漢族占比超過90%。" },
+    { q: "少數民族中人口比例最高的是？", opts: ["藏族", "壯族", "回族", "滿族"], a: 1, e: "壯族為少數民族中人口最多者。" },
+    { q: "秦嶺—淮河以南年降水量普遍高於多少？", opts: ["250mm", "500mm", "750mm", "1000mm"], a: 2, e: "秦嶺淮河為750mm等雨量線。" },
+    { q: "雲南省與雲貴高原多喀斯特地形主因為何作用？", opts: ["風力堆積", "冰川侵蝕", "石灰岩流水侵蝕", "火山噴發"], a: 2, e: "石灰岩受流水溶蝕侵蝕。" },
+    { q: "西台灣北方居民傳統民居設「火炕」的目的為何？", opts: ["冷氣散熱", "引爐灶熱煙保暖", "電熱加溫", "防潮"], a: 1, e: "利用灶火餘溫加熱臥鋪取暖。" },
+    { q: "廣州春節花海盛開反映其屬於何氣候？", opts: ["溫帶季風", "副熱帶季風", "熱帶季風", "高地氣候"], a: 1, e: "廣州屬副熱帶季風，冬季溫和。" },
+    { q: "海南省三亞市最冷月 > 18℃，屬於何氣候？", opts: ["熱帶季風", "副熱帶季風", "溫帶季風", "熱帶雨林"], a: 0, e: "最冷月>18℃且夏雨冬乾為熱帶季風。" },
+    { q: "蘭州與烏魯木齊降水量較少，主要屬於何氣候？", opts: ["溫帶沙漠", "溫帶草原/半乾旱", "溫帶季風", "高地氣候"], a: 1, e: "250~500mm 屬草原/半乾旱氣候。" },
+    { q: "19世紀華工前往美洲主要從事？", opts: ["種稻", "採礦與築路", "貿易", "官員"], a: 1, e: "華工多從事採礦與築路辛苦工作。" },
+    { q: "黑河—騰衝線以西人口集中於？", opts: ["高山頂", "沙漠中央", "綠洲與河谷", "森林"], a: 2, e: "乾燥區集中於有水的綠洲河谷。" },
+    { q: "西台灣新生兒性別比偏高的傳統原因？", opts: ["男女平等", "重男輕女", "崇尚少子", "入伍需求"], a: 1, e: "重男輕女觀念配合生育限制導致。" },
+    { q: "西台灣拉薩與青藏高原譽為？", opts: ["巴西高原", "世界屋脊", "黃土高原", "雲貴高原"], a: 1, e: "青藏高原地勢高聳譽為世界屋脊。" },
+    { q: "東北平原土壤肥沃稱為？", opts: ["紅土", "黑土", "黃土", "砂土"], a: 1, e: "東北平原為肥沃黑土糧倉。" },
+    { q: "夏季陸地增溫快形成何氣壓？", opts: ["高氣壓", "低氣壓", "鞍形氣壓", "無氣壓"], a: 1, e: "陸地增溫快形成低氣壓吸引海風。" },
+    { q: "下列關於地勢西高東低影響何者錯誤？", opts: ["阻擋海洋水氣深入", "河流東流", "上游富水力", "利東西水運"], a: 0, e: "西高東低有利於海洋水氣深入。" },
+    { q: "內蒙古高原景觀特徵？", opts: ["地形崎嶇", "平坦遼闊荒漠草原", "千溝萬壑", "山高谷深"], a: 1, e: "內蒙古高原平坦遼闊。" },
+    { q: "超高齡社會是指 65 歲以上人口達？", opts: ["15%", "18%", "20%", "25%"], a: 2, e: "達 20% 即為超高齡社會。" },
+    { q: "現今西台灣總人口數已超過？", opts: ["10億", "12億", "14億", "16億"], a: 2, e: "人口已超過 14.1 億人。" },
+    { q: "西台灣直轄市數量共有幾個？", opts: ["2個", "3個", "4個", "5個"], a: 2, e: "北京、天津、上海、重慶共4個。" },
+    { q: "特別行政區包括香港與何地？", opts: ["海南", "澳門", "廣州", "深圳"], a: 1, e: "香港與澳門為特別行政區。" },
+    { q: "柴達木盆地位於哪一階梯？", opts: ["最高階梯", "次高階梯", "最低階梯", "沿海"], a: 0, e: "柴達木盆地位於青藏高原內（最高階梯）。" },
+    { q: "吐魯番窪地氣候乾旱主因？", opts: ["緯度極高", "深居內陸且地形封閉", "沿海寒流", "地勢最高"], a: 1, e: "深居內陸且周圍高山環繞。" },
+    { q: "安溪移民遷至新北市泰山區興建？", opts: ["頂泰山巖", "龍山寺", "天后宮", "指南宮"], a: 0, e: "複製原鄉信仰興建頂泰山巖。" },
+    { q: "年降水量以多少毫米劃分季風與乾燥？", opts: ["250mm", "500mm", "750mm", "1000mm"], a: 1, e: "500mm為季風與乾燥分界。" },
+    { q: "氣候垂直變化顯著的是？", opts: ["季風氣候", "高地氣候", "乾燥氣候", "熱帶氣候"], a: 1, e: "高地氣候隨高度垂直變化。" },
+    { q: "環境負載力最高的地形區為？", opts: ["青藏高原", "塔里木盆地", "長江中下游平原", "內蒙古高原"], a: 2, e: "長江中下游平原資源豐富負載力高。" },
+    { q: "西台灣冬季南北溫差大的主因？", opts: ["地形", "緯度跨距大與太陽直射南半球", "海陸分布", "植被"], a: 1, e: "緯度跨距大且冬季太陽直射南半球。" },
+    { q: "下列何者非一胎化帶來的副作用？", opts: ["少子化", "高齡化", "性別比失衡", "人口均勻分布"], a: 3, e: "一胎化未能改善人口東密西疏。" }
+];
+
+function loadQuiz() {
+    let box = document.getElementById('quizContainer');
+    let html = "";
+    fullQuiz.forEach((item, i) => {
+        html += `<div class="quiz-item">
+            <strong>第 ${i+1} 題：${item.q}</strong>`;
+        item.opts.forEach((opt, oIdx) => {
+            html += `<label class="quiz-opt"><input type="radio" name="qz${i}" value="${oIdx}" onchange="checkQ(${i})"> (${['A','B','C','D'][oIdx]}) ${opt}</label>`;
+        });
+        html += `<div id="exp${i}" class="exp-box"><b>正確答案：(${['A','B','C','D'][item.a]})</b><br>💡 解析：${item.e}</div></div>`;
+    });
+    box.innerHTML = html;
+}
+
+function checkQ(i) { document.getElementById(`exp${i}`).style.display = 'block'; }
+
+// 初始化
+window.onload = function() {
+    showLocationInfo('塔克拉瑪干沙漠/烏魯木齊');
+    renderTree(mindMapData, document.getElementById('treeRoot'));
+    selectNode(mindMapData);
+    loadQuiz();
+};
+</script>
+</body>
+</html>
